@@ -110,7 +110,8 @@ def tick():
             dy = dy[1:99]
     if dy != pdy:
         pdy = dy
-        datey2.setText(dy)
+        if Config.useframe2:
+            datey2.setText(dy)
 
     if now.day != lastday:
         lastday = now.day
@@ -127,7 +128,8 @@ def tick():
         ds = "{0:%A %B} {0.day}<sup>{1}</sup> {0.year}".format(now, sup)
         ds2 = "{0:%a %b} {0.day}<sup>{1}</sup> {0.year}".format(now, sup)
         datex.setText(ds)
-        datex2.setText(ds2)
+        if Config.useframe2:
+            datex2.setText(ds2)
 
 
 def tempfinished():
@@ -235,7 +237,8 @@ def wxfinished():
 
     if Config.useoffline == 0:
         attribution.setText("DarkSky.net")
-        attribution2.setText("DarkSky.net")
+        if Config.useframe2:
+            attribution2.setText("DarkSky.net")
 
     wxstr = str(wxreply.readAll())
     wxdata = json.loads(wxstr)
@@ -444,8 +447,9 @@ def qtstart():
         objradar1.wxstart()
         objradar2.start(Config.radar_refresh * 60)
         objradar2.wxstart()
-        objradar3.start(Config.radar_refresh * 60)
-        objradar4.start(Config.radar_refresh * 60)
+        if Config.useframe2:
+            objradar3.start(Config.radar_refresh * 60)
+            objradar4.start(Config.radar_refresh * 60)
 
     ctimer = QtCore.QTimer()
     ctimer.timeout.connect(tick)
@@ -895,8 +899,9 @@ def myquit(a=0, b=0):
     if Config.useoffline == 0:
         objradar1.stop()
         objradar2.stop()
-        objradar3.stop()
-        objradar4.stop()
+        if Config.useframe2:
+            objradar3.stop()
+            objradar4.stop()
     ctimer.stop()
     wxtimer.stop()
     temptimer.stop()
@@ -992,6 +997,16 @@ try:
     Config.useoffline
 except AttributeError:
     Config.useoffline = 0
+
+try:
+    Config.useframe2
+except AttributeError:
+    Config.useframe2 = 1
+
+try:
+    Config.useframe3
+except AttributeError:
+    Config.useframe3 = 0
 
 try:
     Config.metric
@@ -1141,21 +1156,23 @@ if Config.useslideshow:
     imgRect = QtCore.QRect(0, 0, width, height)
     objimage1 = SS(frame1, imgRect, "image1")
 
-frame2 = QtGui.QFrame(w)
-frame2.setObjectName("frame2")
-frame2.setGeometry(0, 0, width, height)
-frame2.setStyleSheet("#frame2 { background-color: blue; border-image: url(" +
-                     Config.background + ") 0 0 0 0 stretch stretch;}")
-frame2.setVisible(False)
-frames.append(frame2)
+if Config.useframe2:
+    frame2 = QtGui.QFrame(w)
+    frame2.setObjectName("frame2")
+    frame2.setGeometry(0, 0, width, height)
+    frame2.setStyleSheet("#frame2 { background-color: blue; border-image: url(" +
+                         Config.background + ") 0 0 0 0 stretch stretch;}")
+    frame2.setVisible(False)
+    frames.append(frame2)
 
-# frame3 = QtGui.QFrame(w)
-# frame3.setObjectName("frame3")
-# frame3.setGeometry(0,0,width,height)
-# frame3.setStyleSheet("#frame3 { background-color: blue; border-image:
-#       url("+Config.background+") 0 0 0 0 stretch stretch;}")
-# frame3.setVisible(False)
-# frames.append(frame3)
+#if Config.useframe3:
+    # frame3 = QtGui.QFrame(w)
+    # frame3.setObjectName("frame3")
+    # frame3.setGeometry(0,0,width,height)
+    # frame3.setStyleSheet("#frame3 { background-color: blue; border-image:
+    #       url("+Config.background+") 0 0 0 0 stretch stretch;}")
+    # frame3.setVisible(False)
+    # frames.append(frame3)
 
 foreGround = QtGui.QFrame(frame1)
 foreGround.setObjectName("foreGround")
@@ -1247,12 +1264,13 @@ if Config.useoffline == 0:
     radar2rect = QtCore.QRect(3 * xscale, 622 * yscale, 300 * xscale, 275 * yscale)
     objradar2 = Radar(foreGround, Config.radar2, radar2rect, "radar2")
     
-    radar3rect = QtCore.QRect(13 * xscale, 50 * yscale, 700 * xscale, 700 * yscale)
-    objradar3 = Radar(frame2, Config.radar3, radar3rect, "radar3")
-    
-    radar4rect = QtCore.QRect(726 * xscale, 50 * yscale,
-                             700 * xscale, 700 * yscale)
-    objradar4 = Radar(frame2, Config.radar4, radar4rect, "radar4")
+    if Config.useframe2:
+        radar3rect = QtCore.QRect(13 * xscale, 50 * yscale, 700 * xscale, 700 * yscale)
+        objradar3 = Radar(frame2, Config.radar3, radar3rect, "radar3")
+        
+        radar4rect = QtCore.QRect(726 * xscale, 50 * yscale,
+                                 700 * xscale, 700 * yscale)
+        objradar4 = Radar(frame2, Config.radar4, radar4rect, "radar4")
 
 
 datex = QtGui.QLabel(foreGround)
@@ -1267,27 +1285,28 @@ datex.setStyleSheet("#datex { font-family:sans-serif; color: " +
 datex.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
 datex.setGeometry(0, 0, width, 100)
 
-datex2 = QtGui.QLabel(frame2)
-datex2.setObjectName("datex2")
-datex2.setStyleSheet("#datex2 { font-family:sans-serif; color: " +
-                     Config.textcolor +
-                     "; background-color: transparent; font-size: " +
-                     str(int(50 * xscale)) + "px; " +
-                     Config.fontattr +
-                     "}")
-datex2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-datex2.setGeometry(800 * xscale, 780 * yscale, 640 * xscale, 100)
-datey2 = QtGui.QLabel(frame2)
-datey2.setObjectName("datey2")
-datey2.setStyleSheet("#datey2 { font-family:sans-serif; color: " +
-                     Config.textcolor +
-                     "; background-color: transparent; font-size: " +
-                     str(int(50 * xscale)) +
-                     "px; " +
-                     Config.fontattr +
-                     "}")
-datey2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-datey2.setGeometry(800 * xscale, 840 * yscale, 640 * xscale, 100)
+if Config.useframe2:
+    datex2 = QtGui.QLabel(frame2)
+    datex2.setObjectName("datex2")
+    datex2.setStyleSheet("#datex2 { font-family:sans-serif; color: " +
+                         Config.textcolor +
+                         "; background-color: transparent; font-size: " +
+                         str(int(50 * xscale)) + "px; " +
+                         Config.fontattr +
+                         "}")
+    datex2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+    datex2.setGeometry(800 * xscale, 780 * yscale, 640 * xscale, 100)
+    datey2 = QtGui.QLabel(frame2)
+    datey2.setObjectName("datey2")
+    datey2.setStyleSheet("#datey2 { font-family:sans-serif; color: " +
+                         Config.textcolor +
+                         "; background-color: transparent; font-size: " +
+                         str(int(50 * xscale)) +
+                         "px; " +
+                         Config.fontattr +
+                         "}")
+    datey2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+    datey2.setGeometry(800 * xscale, 840 * yscale, 640 * xscale, 100)
 
 attribution = QtGui.QLabel(foreGround)
 attribution.setObjectName("attribution")
@@ -1308,24 +1327,24 @@ wxicon.setObjectName("wxicon")
 wxicon.setStyleSheet("#wxicon { background-color: transparent; }")
 wxicon.setGeometry(75 * xscale, ypos * yscale, 150 * xscale, 150 * yscale)
 
-
-attribution2 = QtGui.QLabel(frame2)
-attribution2.setObjectName("attribution2")
-attribution2.setStyleSheet("#attribution2 { " +
-                           "background-color: transparent; color: " +
-                           Config.textcolor +
-                           "; font-size: " +
-                           str(int(12 * xscale)) +
-                           "px; " +
-                           Config.fontattr +
-                           "}")
-attribution2.setAlignment(Qt.AlignTop)
-attribution2.setGeometry(6 * xscale, 880 * yscale, 100 * xscale, 100)
-
-wxicon2 = QtGui.QLabel(frame2)
-wxicon2.setObjectName("wxicon2")
-wxicon2.setStyleSheet("#wxicon2 { background-color: transparent; }")
-wxicon2.setGeometry(0 * xscale, 750 * yscale, 150 * xscale, 150 * yscale)
+if Config.useframe2:
+    attribution2 = QtGui.QLabel(frame2)
+    attribution2.setObjectName("attribution2")
+    attribution2.setStyleSheet("#attribution2 { " +
+                               "background-color: transparent; color: " +
+                               Config.textcolor +
+                               "; font-size: " +
+                               str(int(12 * xscale)) +
+                               "px; " +
+                               Config.fontattr +
+                               "}")
+    attribution2.setAlignment(Qt.AlignTop)
+    attribution2.setGeometry(6 * xscale, 880 * yscale, 100 * xscale, 100)
+    
+    wxicon2 = QtGui.QLabel(frame2)
+    wxicon2.setObjectName("wxicon2")
+    wxicon2.setStyleSheet("#wxicon2 { background-color: transparent; }")
+    wxicon2.setGeometry(0 * xscale, 750 * yscale, 150 * xscale, 150 * yscale)
 
 ypos += 130
 wxdesc = QtGui.QLabel(foreGround)
@@ -1340,17 +1359,18 @@ wxdesc.setStyleSheet("#wxdesc { background-color: transparent; color: " +
 wxdesc.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
 wxdesc.setGeometry(3 * xscale, ypos * yscale, 300 * xscale, 100)
 
-wxdesc2 = QtGui.QLabel(frame2)
-wxdesc2.setObjectName("wxdesc2")
-wxdesc2.setStyleSheet("#wxdesc2 { background-color: transparent; color: " +
-                      Config.textcolor +
-                      "; font-size: " +
-                      str(int(50 * xscale)) +
-                      "px; " +
-                      Config.fontattr +
-                      "}")
-wxdesc2.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-wxdesc2.setGeometry(400 * xscale, 800 * yscale, 400 * xscale, 100)
+if Config.useframe2:
+    wxdesc2 = QtGui.QLabel(frame2)
+    wxdesc2.setObjectName("wxdesc2")
+    wxdesc2.setStyleSheet("#wxdesc2 { background-color: transparent; color: " +
+                          Config.textcolor +
+                          "; font-size: " +
+                          str(int(50 * xscale)) +
+                          "px; " +
+                          Config.fontattr +
+                          "}")
+    wxdesc2.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+    wxdesc2.setGeometry(400 * xscale, 800 * yscale, 400 * xscale, 100)
 
 ypos += 25
 temper = QtGui.QLabel(foreGround)
@@ -1365,17 +1385,18 @@ temper.setStyleSheet("#temper { background-color: transparent; color: " +
 temper.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
 temper.setGeometry(3 * xscale, ypos * yscale, 300 * xscale, 100)
 
-temper2 = QtGui.QLabel(frame2)
-temper2.setObjectName("temper2")
-temper2.setStyleSheet("#temper2 { background-color: transparent; color: " +
-                      Config.textcolor +
-                      "; font-size: " +
-                      str(int(70 * xscale)) +
-                      "px; " +
-                      Config.fontattr +
-                      "}")
-temper2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-temper2.setGeometry(125 * xscale, 780 * yscale, 300 * xscale, 100)
+if Config.useframe2:
+    temper2 = QtGui.QLabel(frame2)
+    temper2.setObjectName("temper2")
+    temper2.setStyleSheet("#temper2 { background-color: transparent; color: " +
+                          Config.textcolor +
+                          "; font-size: " +
+                          str(int(70 * xscale)) +
+                          "px; " +
+                          Config.fontattr +
+                          "}")
+    temper2.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+    temper2.setGeometry(125 * xscale, 780 * yscale, 300 * xscale, 100)
 
 ypos += 80
 press = QtGui.QLabel(foreGround)

@@ -6,6 +6,11 @@ from PyQt4.QtGui import QColor
 # Set if use use PiClock on offlline mode (eg: NTP server without internet access)
 useoffline = 0
 
+# OPTIONAL FRAMES
+# Set if wou dont want show and use multi frame Radar
+useframe2 = 1
+useframe3 = 0
+
 # LOCATION(S)
 # Further radar configuration (zoom, marker location) can be
 # completed under the RADAR section
