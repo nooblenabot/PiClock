@@ -2,6 +2,10 @@ from GoogleMercatorProjection import LatLng
 from PyQt4.QtGui import QColor
 
 
+# OFFLINE MODE
+# Set if use use PiClock on offlline mode (eg: NTP server without internet access)
+useoffline = 0
+
 # LOCATION(S)
 # Further radar configuration (zoom, marker location) can be
 # completed under the RADAR section

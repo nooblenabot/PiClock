@@ -233,8 +233,9 @@ def wxfinished():
     global wind, wind2, wdate, bottom, forecast
     global wxicon2, temper2, wxdesc, attribution
 
-    attribution.setText("DarkSky.net")
-    attribution2.setText("DarkSky.net")
+    if Config.useoffline == 0:
+        attribution.setText("DarkSky.net")
+        attribution2.setText("DarkSky.net")
 
     wxstr = str(wxreply.readAll())
     wxdata = json.loads(wxstr)
@@ -433,16 +434,18 @@ def qtstart():
     global objradar3
     global objradar4
 
-    getallwx()
+    if Config.useoffline == 0:
+        getallwx()
 
     gettemp()
 
-    objradar1.start(Config.radar_refresh * 60)
-    objradar1.wxstart()
-    objradar2.start(Config.radar_refresh * 60)
-    objradar2.wxstart()
-    objradar3.start(Config.radar_refresh * 60)
-    objradar4.start(Config.radar_refresh * 60)
+    if Config.useoffline == 0:
+        objradar1.start(Config.radar_refresh * 60)
+        objradar1.wxstart()
+        objradar2.start(Config.radar_refresh * 60)
+        objradar2.wxstart()
+        objradar3.start(Config.radar_refresh * 60)
+        objradar4.start(Config.radar_refresh * 60)
 
     ctimer = QtCore.QTimer()
     ctimer.timeout.connect(tick)
@@ -840,6 +843,7 @@ class Radar(QtGui.QLabel):
                             r = r * cr
                             g = g * cg
                             b = b * cb
+                            a = a * ca
                             mk2.setPixel(x, y, QColor.fromRgbF(r, g, b, a)
                                          .rgba())
                 mk2 = mk2.scaledToHeight(mkh, 1)
@@ -888,10 +892,11 @@ def myquit(a=0, b=0):
     global objradar1, objradar2, objradar3, objradar4
     global ctimer, wtimer, temptimer
 
-    objradar1.stop()
-    objradar2.stop()
-    objradar3.stop()
-    objradar4.stop()
+    if Config.useoffline == 0:
+        objradar1.stop()
+        objradar2.stop()
+        objradar3.stop()
+        objradar4.stop()
     ctimer.stop()
     wxtimer.stop()
     temptimer.stop()
@@ -982,6 +987,11 @@ try:
     Config.location
 except AttributeError:
     Config.location = Config.wulocation
+
+try:
+    Config.useoffline
+except AttributeError:
+    Config.useoffline = 0
 
 try:
     Config.metric
@@ -1152,21 +1162,22 @@ foreGround.setObjectName("foreGround")
 foreGround.setStyleSheet("#foreGround { background-color: transparent; }")
 foreGround.setGeometry(0, 0, width, height)
 
-squares1 = QtGui.QFrame(foreGround)
-squares1.setObjectName("squares1")
-squares1.setGeometry(0, height - yscale * 600, xscale * 340, yscale * 600)
-squares1.setStyleSheet(
-    "#squares1 { background-color: transparent; border-image: url(" +
-    Config.squares1 +
-    ") 0 0 0 0 stretch stretch;}")
+if Config.useoffline == 0:
+    squares1 = QtGui.QFrame(foreGround)
+    squares1.setObjectName("squares1")
+    squares1.setGeometry(0, height - yscale * 600, xscale * 340, yscale * 600)
+    squares1.setStyleSheet(
+        "#squares1 { background-color: transparent; border-image: url(" +
+        Config.squares1 +
+        ") 0 0 0 0 stretch stretch;}")
 
-squares2 = QtGui.QFrame(foreGround)
-squares2.setObjectName("squares2")
-squares2.setGeometry(width - xscale * 340, 0, xscale * 340, yscale * 900)
-squares2.setStyleSheet(
-    "#squares2 { background-color: transparent; border-image: url(" +
-    Config.squares2 +
-    ") 0 0 0 0 stretch stretch;}")
+    squares2 = QtGui.QFrame(foreGround)
+    squares2.setObjectName("squares2")
+    squares2.setGeometry(width - xscale * 340, 0, xscale * 340, yscale * 900)
+    squares2.setStyleSheet(
+        "#squares2 { background-color: transparent; border-image: url(" +
+        Config.squares2 +
+        ") 0 0 0 0 stretch stretch;}")
 
 if not Config.digital:
     clockface = QtGui.QFrame(foreGround)
@@ -1229,18 +1240,19 @@ else:
     clockface.setGraphicsEffect(glow)
 
 
-radar1rect = QtCore.QRect(3 * xscale, 344 * yscale, 300 * xscale, 275 * yscale)
-objradar1 = Radar(foreGround, Config.radar1, radar1rect, "radar1")
-
-radar2rect = QtCore.QRect(3 * xscale, 622 * yscale, 300 * xscale, 275 * yscale)
-objradar2 = Radar(foreGround, Config.radar2, radar2rect, "radar2")
-
-radar3rect = QtCore.QRect(13 * xscale, 50 * yscale, 700 * xscale, 700 * yscale)
-objradar3 = Radar(frame2, Config.radar3, radar3rect, "radar3")
-
-radar4rect = QtCore.QRect(726 * xscale, 50 * yscale,
-                          700 * xscale, 700 * yscale)
-objradar4 = Radar(frame2, Config.radar4, radar4rect, "radar4")
+if Config.useoffline == 0:
+    radar1rect = QtCore.QRect(3 * xscale, 344 * yscale, 300 * xscale, 275 * yscale)
+    objradar1 = Radar(foreGround, Config.radar1, radar1rect, "radar1")
+    
+    radar2rect = QtCore.QRect(3 * xscale, 622 * yscale, 300 * xscale, 275 * yscale)
+    objradar2 = Radar(foreGround, Config.radar2, radar2rect, "radar2")
+    
+    radar3rect = QtCore.QRect(13 * xscale, 50 * yscale, 700 * xscale, 700 * yscale)
+    objradar3 = Radar(frame2, Config.radar3, radar3rect, "radar3")
+    
+    radar4rect = QtCore.QRect(726 * xscale, 50 * yscale,
+                             700 * xscale, 700 * yscale)
+    objradar4 = Radar(frame2, Config.radar4, radar4rect, "radar4")
 
 
 datex = QtGui.QLabel(foreGround)
@@ -1295,6 +1307,7 @@ wxicon = QtGui.QLabel(foreGround)
 wxicon.setObjectName("wxicon")
 wxicon.setStyleSheet("#wxicon { background-color: transparent; }")
 wxicon.setGeometry(75 * xscale, ypos * yscale, 150 * xscale, 150 * yscale)
+
 
 attribution2 = QtGui.QLabel(frame2)
 attribution2.setObjectName("attribution2")
